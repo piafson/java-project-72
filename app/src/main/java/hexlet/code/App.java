@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
@@ -33,7 +35,7 @@ public class App {
     }
 
     public static Javalin getApp() throws IOException, SQLException {
-        var hikariConfig = new HikariConfig();
+        HikariConfig hikariConfig = new HikariConfig();
         String jbcUrl = "jdbc:h2:mem:piafson";
 
         if (System.getenv("JDBC_DATABASE_URL") != null) {
@@ -42,13 +44,12 @@ public class App {
             hikariConfig.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
         }
         hikariConfig.setJdbcUrl(jbcUrl);
-
-        var sql = readResourceFile("schema.sql");
         HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+        var sql = readResourceFile("schema.sql");
 
         log.info(sql);
-        try (var connection = dataSource.getConnection();
-             var stmt = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
         }
         BaseRepository.dataSource = dataSource;
@@ -75,6 +76,6 @@ public class App {
 
     public static void main(String[] args) throws IOException, SQLException {
         Javalin app = getApp();
-        app.start(getPort());
+        app.start();
     }
 }
