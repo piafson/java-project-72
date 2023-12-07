@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import hexlet.code.controller.RootController;
+import hexlet.code.controller.UrlController;
 import hexlet.code.repository.BaseRepository;
+import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import lombok.extern.slf4j.Slf4j;
 import com.zaxxer.hikari.HikariConfig;
@@ -31,10 +34,10 @@ public class App {
 
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
-        String jbcUrl = System.getenv("JDBC_DATABASE_URL");
+        String jbcUrl = "jdbc:h2:mem:piafson";
 
-        if (System.getenv("JDBC_DATABASE_URL") == null) {
-            jbcUrl = "jdbc:h2:mem:piafson";
+        if (System.getenv("JDBC_DATABASE_URL") != null) {
+            jbcUrl = System.getenv("JDBC_DATABASE_URL");
             hikariConfig.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
             hikariConfig.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
         }
@@ -55,7 +58,10 @@ public class App {
             JavalinJte.init(createTemplateEngine());
         });
 
-        app.get("/", ctx -> ctx.render("index.jte"));
+        app.get(NamedRoutes.rootPath(), RootController.showMainPage);
+        app.post(NamedRoutes.urlsPath(), UrlController.createUrl);
+        app.get(NamedRoutes.urlsPath(), UrlController.listUrls);
+        app.get(NamedRoutes.urlPath("{id}"),  UrlController.show);
 
         return app;
     }

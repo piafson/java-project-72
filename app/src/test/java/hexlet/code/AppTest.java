@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppTest {
 
-    Javalin app;
+    private Javalin app;
 
     @BeforeEach
     public final void setApp() throws IOException, SQLException {
@@ -25,6 +25,8 @@ public class AppTest {
         JavalinTest.test(app, ((server, client) -> {
             Response response = client.get("/");
             assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string())
+                    .contains("<p class=\"lead\">Бесплатно проверяйте сайты на SEO пригодность</p>");
         }));
     }
 }
