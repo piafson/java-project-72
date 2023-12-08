@@ -38,6 +38,7 @@ public class App {
         String jbcUrl = "jdbc:h2:mem:piafson;DB_CLOSE_DELAY=-1;";
 
         if (System.getenv("JDBC_DATABASE_URL") != null) {
+            hikariConfig.setDriverClassName("io.opentracing.contrib.jdbc.TracingDriver");
             jbcUrl = System.getenv("JDBC_DATABASE_URL");
             hikariConfig.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
             hikariConfig.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
