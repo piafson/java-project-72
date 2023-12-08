@@ -38,13 +38,14 @@ public class UrlController {
         UrlRepository.save(newUrl);
         ctx.sessionAttribute("flash", "Страница успешно добавлена");
         ctx.sessionAttribute("flashType", "alert-success");
+        ctx.redirect(NamedRoutes.urlsPath());
     };
 
     public static Handler listUrls = ctx -> {
         var urls = UrlRepository.getEntities();
         var page = new UrlsPage(urls);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
-        page.setFlash(ctx.consumeSessionAttribute("flashType"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
         ctx.render("allUrls.jte", Collections.singletonMap("page", page));
     };
 

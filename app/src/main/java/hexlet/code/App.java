@@ -13,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
@@ -24,6 +22,7 @@ import gg.jte.resolve.ResourceCodeResolver;
 
 @Slf4j
 public class App {
+
     private static int getPort() {
         String port = System.getenv().getOrDefault("PORT", "7070");
         return Integer.valueOf(port);
@@ -35,8 +34,8 @@ public class App {
     }
 
     public static Javalin getApp() throws IOException, SQLException {
-        HikariConfig hikariConfig = new HikariConfig();
-        String jbcUrl = "jdbc:h2:mem:piafson";
+        var hikariConfig = new HikariConfig();
+        String jbcUrl = "jdbc:h2:mem:piafson;DB_CLOSE_DELAY=-1;";
 
         if (System.getenv("JDBC_DATABASE_URL") != null) {
             jbcUrl = System.getenv("JDBC_DATABASE_URL");
@@ -44,12 +43,11 @@ public class App {
             hikariConfig.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
         }
         hikariConfig.setJdbcUrl(jbcUrl);
-        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+        var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("schema.sql");
 
-        log.info(sql);
-        try (Connection connection = dataSource.getConnection();
-             Statement stmt = connection.createStatement()) {
+        try (var connection = dataSource.getConnection();
+             var stmt = connection.createStatement()) {
             stmt.execute(sql);
         }
         BaseRepository.dataSource = dataSource;
@@ -76,6 +74,6 @@ public class App {
 
     public static void main(String[] args) throws IOException, SQLException {
         Javalin app = getApp();
-        app.start();
+        app.start(getPort());
     }
 }

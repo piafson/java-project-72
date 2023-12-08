@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Анализатор страниц</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -35,7 +35,7 @@
 </nav>
 <main class="flex-grow-1">
     @if (page != null && page.getFlash() != null)
-        <div class="rounded-0 m-0 alert  ${page.getFlashType()}" role="alert">
+        <div class="rounded-0 m-0 alert ${page.getFlashType()}" role="alert">
             <p class="m-0">${page.getFlash()}</p>
         </div>
     @endif
