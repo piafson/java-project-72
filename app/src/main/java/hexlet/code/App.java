@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.sql.Driver;
 import java.sql.SQLException;
 
 import gg.jte.ContentType;
@@ -38,7 +39,7 @@ public class App {
         String jbcUrl = "jdbc:h2:mem:piafson;DB_CLOSE_DELAY=-1;";
 
         if (System.getenv("JDBC_DATABASE_URL") != null) {
-            hikariConfig.setDriverClassName("io.opentracing.contrib.jdbc.TracingDriver");
+            hikariConfig.setDriverClassName(Driver.class.getName());
             jbcUrl = System.getenv("JDBC_DATABASE_URL");
             hikariConfig.setUsername(System.getenv("JDBC_DATABASE_USERNAME"));
             hikariConfig.setPassword(System.getenv("JDBC_DATABASE_PASSWORD"));
