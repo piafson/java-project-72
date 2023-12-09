@@ -4,20 +4,32 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AppTest {
 
     private Javalin app;
+
+
+    private static Path getFixturePath(String fileName) {
+        return Paths.get("src", "test", "resources", "fixtures", fileName).toAbsolutePath().normalize();
+    }
+
+    private static String readFixture(String fileName) throws IOException {
+        Path filePath = getFixturePath(fileName);
+        return Files.readString(filePath).trim();
+    }
 
     @BeforeEach
     public final void setApp() throws IOException, SQLException {
@@ -60,11 +72,11 @@ public class AppTest {
     @Test
     public void testShow() {
         JavalinTest.test(app, (server, client) -> {
-            var date = new Date();
-            var createdAt = new Timestamp(date.getTime());
-            var url = new Url(1, "https://google.com", createdAt);
+            var url = new Url("https://google.com");
             UrlRepository.save(url);
-            var response = client.get("/urls/" + url.getId());
+            var newUrl = UrlRepository.find("https://google.com");
+            var id = newUrl.get().getId();
+            var response = client.get("/urls/" + id);
             assertThat(response.code()).isEqualTo(200);
         });
     }
@@ -72,8 +84,23 @@ public class AppTest {
     @Test
     public void testUrlNotFound() {
         JavalinTest.test(app, (server, client) -> {
+            UrlRepository.destroy(25);
             var response = client.get("/urls/25");
             assertThat(response.code()).isEqualTo(404);
+        });
+    }
+
+    @Test
+    public void testCheckUrl() throws IOException {
+        var mockServer = new MockWebServer();
+        var mockUrl = mockServer.url("/").toString();
+        var mockResponse = new MockResponse().setBody(readFixture("index.html"));
+        mockServer.enqueue(mockResponse);
+
+        JavalinTest.test(app, (server, client) -> {
+            var requestBody = "url=" + mockUrl;
+            var response = client.post("/urls", requestBody);
+            assertThat(response.code()).isEqualTo(200);
         });
     }
 }

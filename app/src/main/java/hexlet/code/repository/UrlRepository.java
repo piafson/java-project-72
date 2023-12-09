@@ -70,8 +70,8 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> findByName(String name) throws SQLException {
-        String sql = "SELECT * FROM urls WHERE name = ?";
+    public static Optional<Url> find(String name) throws SQLException {
+        String sql = "SELECT id, name, created_at FROM urls WHERE name = ?";
         try (var connection = dataSource.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, name);

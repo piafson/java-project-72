@@ -1,8 +1,10 @@
 package hexlet.code;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import hexlet.code.controller.RootController;
 import hexlet.code.controller.UrlController;
@@ -15,6 +17,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import org.postgresql.Driver;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
@@ -29,9 +32,17 @@ public class App {
         return Integer.valueOf(port);
     }
 
-    private static String readResourceFile(String fileName) throws IOException {
-        var path = Paths.get("src", "main", "resources", fileName);
-        return Files.readString(path);
+    private static InputStream getFile(String fileName) {
+        var classLoader = App.class.getClassLoader();
+        var inputStream = classLoader.getResourceAsStream(fileName);
+        return inputStream;
+    }
+
+
+    private static String getContent(InputStream is) throws IOException {
+        try (var reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
     }
 
     public static Javalin getApp() throws IOException, SQLException {
@@ -46,8 +57,7 @@ public class App {
         }
         hikariConfig.setJdbcUrl(jbcUrl);
         var dataSource = new HikariDataSource(hikariConfig);
-        var sql = readResourceFile("schema.sql");
-
+        var sql = getContent(getFile("schema.sql"));
         try (var connection = dataSource.getConnection();
              var stmt = connection.createStatement()) {
             stmt.execute(sql);
@@ -55,7 +65,9 @@ public class App {
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(config -> {
-            config.plugins.enableDevLogging();
+            if (System.getenv("JDBC_DATABASE_URL") == null) {
+                config.plugins.enableDevLogging();
+            }
             JavalinJte.init(createTemplateEngine());
         });
 
@@ -63,6 +75,7 @@ public class App {
         app.post(NamedRoutes.urlsPath(), UrlController.createUrl);
         app.get(NamedRoutes.urlsPath(), UrlController.listUrls);
         app.get(NamedRoutes.urlPath("{id}"),  UrlController.show);
+        app.post(NamedRoutes.urlCheckPath("{id}"), UrlController.check);
 
         return app;
     }

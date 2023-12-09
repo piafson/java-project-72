@@ -29,11 +29,13 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.0")
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+    implementation("com.konghq:unirest-java:3.14.5")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
 }
 
 tasks.test {
