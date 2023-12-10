@@ -4,6 +4,8 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/0bc4e74f5348d85f0680/maintainability)](https://codeclimate.com/github/piafson/java-project-72/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0bc4e74f5348d85f0680/test_coverage)](https://codeclimate.com/github/piafson/java-project-72/test_coverage)
 
+### About the project:
+Page Analyzer is a web application that analyzes specified pages for SEO suitability.
 
 ### Demo:
-["href"](https://java-project-72-4rzb.onrender.com)
+["https://java-project-72-4rzb.onrender.com"](https://java-project-72-4rzb.onrender.com)
