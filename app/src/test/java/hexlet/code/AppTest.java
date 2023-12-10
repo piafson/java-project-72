@@ -21,7 +21,6 @@ public class AppTest {
 
     private Javalin app;
 
-
     private static Path getFixturePath(String fileName) {
         return Paths.get("src", "test", "resources", "fixtures", fileName).toAbsolutePath().normalize();
     }
@@ -58,6 +57,7 @@ public class AppTest {
             assertThat(response2.code()).isEqualTo(200);
             assertThat(response2.body().string())
                     .contains("<a class=\"navbar-brand\" href=\"/\">Анализатор страниц</a>");
+            assertThat(UrlRepository.checkUrlExist("https://google.com")).isTrue();
         });
     }
 
@@ -91,7 +91,7 @@ public class AppTest {
     }
 
     @Test
-    public void testCheckUrl() throws IOException {
+    public void testCheckUrl() throws IOException, SQLException {
         var mockServer = new MockWebServer();
         var mockUrl = mockServer.url("/").toString();
         var mockResponse = new MockResponse().setBody(readFixture("index.html"));
@@ -102,5 +102,11 @@ public class AppTest {
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
         });
+
+        var formattedName = String.format("%s://%s", mockServer.url("/").url().getProtocol(),
+                mockServer.url("/").url().getAuthority());
+        var addUrl = UrlRepository.find(formattedName).orElse(null);
+        assertThat(addUrl).isNotNull();
+        assertThat(addUrl.getName()).isEqualTo(formattedName);
     }
 }

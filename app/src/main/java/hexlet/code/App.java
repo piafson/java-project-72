@@ -65,9 +65,7 @@ public class App {
         BaseRepository.dataSource = dataSource;
 
         var app = Javalin.create(config -> {
-            if (System.getenv("JDBC_DATABASE_URL") == null) {
-                config.plugins.enableDevLogging();
-            }
+            config.plugins.enableDevLogging();
             JavalinJte.init(createTemplateEngine());
         });
 

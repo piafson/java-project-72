@@ -30,6 +30,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     implementation("com.konghq:unirest-java:3.14.5")
+    implementation("org.jsoup:jsoup:1.17.1")
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(platform("org.junit:junit-bom:5.9.2"))

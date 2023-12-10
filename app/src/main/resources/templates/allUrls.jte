@@ -18,7 +18,7 @@ content = @`
             </tr>
             </thead>
             <tbody>
-                @for (var url : page.getUrls())
+                @for(var url : page.getUrls())
                 !{var urlCheck = page.getUrlChecks().get(url.getId());}    
                     <tr>
                         <td>${url.getId()}</td>

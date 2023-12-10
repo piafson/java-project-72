@@ -9,12 +9,16 @@ import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Handler;
 import io.javalin.http.NotFoundResponse;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Timestamp;
 import java.util.Collections;
-import java.util.Date;
 
 public class UrlController {
 
@@ -65,15 +69,34 @@ public class UrlController {
     };
 
     public static Handler check = ctx -> {
-        var urlCheck = new UrlCheck();
         long urlId = ctx.pathParamAsClass("id", Long.class).get();
-        var date = new Date();
-        var createdAt = new Timestamp(date.getTime());
-        urlCheck.setUrlId(urlId);
-        urlCheck.setCreatedAt(createdAt);
-        UrlCheckRepository.save(urlCheck);
-        ctx.sessionAttribute("flash", "Страница успешно проверена");
-        ctx.sessionAttribute("flashType", "alert-success");
+        var url = UrlRepository.find(urlId).get().getName();
+        HttpResponse<String> response;
+        try {
+            response = Unirest.get(url).asString();
+            var body = response.getBody();
+            Document doc = Jsoup.parse(body);
+            var statusCode = response.getStatus();
+            var title = doc.title();
+            Element h1Temp = doc.selectFirst("h1");
+            String h1 = h1Temp == null ? null : h1Temp.text();
+            Element descriptionTemp = doc.selectFirst("meta[name=description]");
+            String description = descriptionTemp == null ? null : descriptionTemp.attr("content");
+
+            UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description);
+            urlCheck.setUrlId(urlId);
+            UrlCheckRepository.save(urlCheck);
+
+            ctx.sessionAttribute("flash", "Страница успешно проверена");
+            ctx.sessionAttribute("flashType", "alert-success");
+        } catch (UnirestException e) {
+            ctx.sessionAttribute("flash", "Connect to " + url + " failed");
+            ctx.sessionAttribute("flashType", "alert-danger");
+            ctx.redirect(NamedRoutes.urlPath(urlId));
+        } catch (Exception e) {
+            ctx.sessionAttribute("flash", e.getMessage());
+            ctx.sessionAttribute("flashType", "alert-danger");
+        }
         ctx.redirect(NamedRoutes.urlPath(urlId));
     };
 }

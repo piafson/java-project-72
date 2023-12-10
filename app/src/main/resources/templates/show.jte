@@ -26,7 +26,7 @@ content = @`
         </table>
 
         <h2 class="mt-5">Проверки</h2>
-        <form method="post" action="/urls/1/checks">
+        <form method="post" action="/urls/${page.getUrl().getId()}/checks">
             <button type="submit" class="btn btn-primary">Запустить проверку</button>
         </form>
 
@@ -40,7 +40,7 @@ content = @`
                 <th class="col-2">Дата проверки</th>
             </thead>
             <tbody>
-                @for (var urlCheck : page.getUrlChecks())
+                @for(var urlCheck : page.getUrlChecks())
                     <tr>
                         <td>${urlCheck.getId()}</td>
                         <td>${urlCheck.getStatusCode()}</td>
