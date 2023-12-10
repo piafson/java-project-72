@@ -48,7 +48,6 @@ public class App {
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
         String jbcUrl = "jdbc:h2:mem:piafson;DB_CLOSE_DELAY=-1;";
-
         if (System.getenv("JDBC_DATABASE_URL") != null) {
             hikariConfig.setDriverClassName(Driver.class.getCanonicalName());
             jbcUrl = System.getenv("JDBC_DATABASE_URL");

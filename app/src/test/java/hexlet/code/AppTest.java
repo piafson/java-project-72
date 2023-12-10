@@ -1,6 +1,7 @@
 package hexlet.code;
 
 import hexlet.code.model.Url;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
@@ -43,6 +44,25 @@ public class AppTest {
             assertThat(response.body().string())
                     .contains("<p class=\"lead\">Бесплатно проверяйте сайты на SEO пригодность</p>");
         }));
+    }
+
+    @Test
+    public void testUrlPage() {
+        JavalinTest.test(app, ((server, client) -> {
+            var response = client.get("/urls");
+            assertThat(response.code()).isEqualTo(200);
+            assertThat(response.body().string()).contains("Сайты");
+        }));
+    }
+
+    @Test
+    public void testUrlPageNumber() {
+        var mockServer = new MockWebServer();
+        JavalinTest.test(app, (server, client) -> {
+            client.post("/urls", "url=" + mockServer.url("/test").toString());
+            assertThat(client.get("/urls?page=1").code()).isEqualTo(200);
+            assertThat(client.get("/urls?page=1").body().string()).contains("/urls?page=1");
+        });
     }
 
     @Test
@@ -101,12 +121,23 @@ public class AppTest {
             var requestBody = "url=" + mockUrl;
             var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
+
+
+            var formattedName = String.format("%s://%s", mockServer.url("/").url().getProtocol(),
+                mockServer.url("/").url().getAuthority());
+            var addUrl = UrlRepository.find(formattedName).orElse(null);
+            assertThat(addUrl).isNotNull();
+            assertThat(addUrl.getName()).isEqualTo(formattedName);
+
+            var response2 = client.post("/urls/" + addUrl.getId() + "/checks");
+            assertThat(response2.code()).isEqualTo(200);
+
+            var ursCheck = UrlCheckRepository.getEntities(addUrl.getId()).get(0);
+            assertThat(ursCheck.getTitle()).isEqualTo("Л. Н. Толстой — Война и мир");
+            assertThat(ursCheck.getH1()).isEqualTo("Война и мир");
+            assertThat(ursCheck.getDescription()).isEqualTo("Лев Николаевич");
         });
 
-        var formattedName = String.format("%s://%s", mockServer.url("/").url().getProtocol(),
-                mockServer.url("/").url().getAuthority());
-        var addUrl = UrlRepository.find(formattedName).orElse(null);
-        assertThat(addUrl).isNotNull();
-        assertThat(addUrl.getName()).isEqualTo(formattedName);
+
     }
 }
