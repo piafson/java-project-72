@@ -16,8 +16,7 @@ public class UrlRepository extends BaseRepository {
         try (var connection = dataSource.getConnection();
                 var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, url.getName());
-            Date date = new Date();
-            Timestamp createdAt = new Timestamp(date.getTime());
+            var createdAt = new Timestamp(new Date().getTime());
             preparedStatement.setTimestamp(2, createdAt);
             preparedStatement.executeUpdate();
         }
