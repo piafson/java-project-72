@@ -38,7 +38,6 @@ public class App {
         return inputStream;
     }
 
-
     private static String getContent(InputStream is) throws IOException {
         try (var reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));

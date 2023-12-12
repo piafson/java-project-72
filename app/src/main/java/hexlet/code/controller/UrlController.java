@@ -50,7 +50,7 @@ public class UrlController {
     };
 
     public static Handler listUrls = ctx -> {
-        var urls = UrlRepository.getEntities();
+        var urls = UrlRepository.findAll();
         var urlChecks = UrlCheckRepository.getLastCheck();
         var page = new UrlsPage(urls, urlChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -61,7 +61,7 @@ public class UrlController {
     public static Handler show = ctx -> {
         var urlId = ctx.pathParamAsClass("id", Long.class).get();
         var url = UrlRepository.find(urlId).orElseThrow(() -> new NotFoundResponse("Url not found"));
-        var urlChecks = UrlCheckRepository.getEntities(urlId);
+        var urlChecks = UrlCheckRepository.findByUrlId(urlId);
         var page = new UrlPage(url, urlChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         page.setFlashType(ctx.consumeSessionAttribute("flashType"));

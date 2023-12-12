@@ -33,7 +33,7 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static List<Url> getEntities() throws SQLException {
+    public static List<Url> findAll() throws SQLException {
         String sql = "SELECT * FROM urls";
         try (var connection = dataSource.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {
@@ -70,7 +70,7 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> find(String name) throws SQLException {
+    public static Optional<Url> findByName(String name) throws SQLException {
         String sql = "SELECT id, name, created_at FROM urls WHERE name = ?";
         try (var connection = dataSource.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {

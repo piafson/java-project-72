@@ -21,15 +21,14 @@ public class UrlCheckRepository extends BaseRepository {
             preparedStatement.setString(2, urlCheck.getTitle());
             preparedStatement.setString(3, urlCheck.getH1());
             preparedStatement.setString(4, urlCheck.getDescription());
-            var date = new Date();
-            var createdAt = new Timestamp(date.getTime());
+            var createdAt = new Timestamp(new Date().getTime());
             preparedStatement.setTimestamp(5, createdAt);
             preparedStatement.setLong(6, urlCheck.getUrlId());
             preparedStatement.executeUpdate();
         }
     }
 
-    public static List<UrlCheck> getEntities(long urlId) throws SQLException {
+    public static List<UrlCheck> findByUrlId(long urlId) throws SQLException {
         String sql = "SELECT * FROM url_checks WHERE url_id = ?";
         var urlChecks = new ArrayList<UrlCheck>();
         try (var connection = dataSource.getConnection();

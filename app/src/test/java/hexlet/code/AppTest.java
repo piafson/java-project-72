@@ -94,7 +94,7 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             var url = new Url("https://google.com");
             UrlRepository.save(url);
-            var newUrl = UrlRepository.find("https://google.com");
+            var newUrl = UrlRepository.findByName("https://google.com");
             var id = newUrl.get().getId();
             var response = client.get("/urls/" + id);
             assertThat(response.code()).isEqualTo(200);
@@ -125,14 +125,14 @@ public class AppTest {
 
             var formattedName = String.format("%s://%s", mockServer.url("/").url().getProtocol(),
                 mockServer.url("/").url().getAuthority());
-            var addUrl = UrlRepository.find(formattedName).orElse(null);
+            var addUrl = UrlRepository.findByName(formattedName).orElse(null);
             assertThat(addUrl).isNotNull();
             assertThat(addUrl.getName()).isEqualTo(formattedName);
 
             var response2 = client.post("/urls/" + addUrl.getId() + "/checks");
             assertThat(response2.code()).isEqualTo(200);
 
-            var ursCheck = UrlCheckRepository.getEntities(addUrl.getId()).get(0);
+            var ursCheck = UrlCheckRepository.findByUrlId(addUrl.getId()).get(0);
             assertThat(ursCheck.getTitle()).isEqualTo("Л. Н. Толстой — Война и мир");
             assertThat(ursCheck.getH1()).isEqualTo("Война и мир");
             assertThat(ursCheck.getDescription()).isEqualTo("Лев Николаевич");
